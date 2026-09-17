@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Caudex:wght@400;700&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --font-body: 'Roboto', sans-serif;
+  --font-heading: 'Caudex', serif;
+
+  /* Brand palette extracted from the legacy site's css/style.css */
+  --color-brand-brown: #3f271e;
+  --color-brand-brown-dark: #3d220e;
+  --color-brand-cream: #f7f5f1;
+  --color-brand-ink: #101010;
+  --color-brand-muted: #7e7e7e;
+  --color-brand-gold: #f0c14b;
+  --color-brand-amber: #f08804;
+}
+
+html,
+body {
+  font-family: var(--font-body);
+  color: var(--color-brand-ink);
+  background-color: var(--color-brand-cream);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+}
