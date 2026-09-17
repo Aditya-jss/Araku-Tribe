@@ -11,9 +11,24 @@ Rebuild of the Araku Tribe e-commerce site (legacy PHP at `arakutribe.com`) on a
 
 ## Current status
 
-`web/` is wired to the **existing legacy PHP API** (`api/*.php` in the `arakutribe.com` repo) as its backend for now, so the frontend can be built and demoed without waiting on the FastAPI rewrite. See that repo's `api/` directory for the contract being mirrored.
+`backend/` (Phase 2) is now a working FastAPI + PostgreSQL implementation of
+the `api/*.php` contract — same request/response shapes as the legacy PHP, so
+`web/` talks to it with no frontend changes. See `backend/README.md` for the
+endpoint list and auth/OTP flow.
+
+`web/`'s page components are still mostly `ComingSoon` placeholders (Phase 1
+scaffolding); wiring real pages up to the now-working backend is the next
+piece of work.
 
 ### Local development
+
+Start Postgres + the API:
+
+```bash
+docker compose up -d --build
+```
+
+Then the frontend:
 
 ```bash
 cd web
@@ -21,4 +36,4 @@ npm install
 npm run dev
 ```
 
-The Vite dev server proxies `/api`, `/chatbot_api.php`, `/mail.php`, `/uploads`, and `/img` to `http://localhost:8000`, where the legacy PHP app should be running locally (e.g. `php -S localhost:8000` from the `arakutribe.com` repo root).
+The Vite dev server proxies `/api`, `/chatbot_api.php`, `/mail.php`, `/uploads`, and `/img` to `http://localhost:8000`, which is now this repo's own `backend/` service (see `backend/README.md`) rather than the legacy PHP app.
