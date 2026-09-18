@@ -1,21 +1,26 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/layout/Layout'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { About } from './pages/About'
 import { Account } from './pages/Account'
 import { AccountDelete } from './pages/AccountDelete'
 import { AccountEdit } from './pages/AccountEdit'
 import { Cart } from './pages/Cart'
 import { Checkout } from './pages/Checkout'
-import { ComingSoon } from './pages/ComingSoon'
+import { Contact } from './pages/Contact'
 import { ForgotPassword } from './pages/ForgotPassword'
+import { Franchise } from './pages/Franchise'
 import { Home } from './pages/Home'
 import { Login } from './pages/Login'
 import { OrderDetail } from './pages/OrderDetail'
 import { Orders } from './pages/Orders'
+import { PrivacyPolicy } from './pages/PrivacyPolicy'
 import { ProductDetail } from './pages/ProductDetail'
 import { ProductList } from './pages/ProductList'
 import { ResetPassword } from './pages/ResetPassword'
 import { Signup } from './pages/Signup'
+import { TermsAndConditions } from './pages/TermsAndConditions'
+import { TermsDeletion } from './pages/TermsDeletion'
 
 function App() {
   return (
@@ -23,12 +28,12 @@ function App() {
       <Route element={<Layout />}>
         <Route index element={<Home />} />
 
-        <Route path="about" element={<ComingSoon title="About Araku Tribe" />} />
-        <Route path="contact" element={<ComingSoon title="Contact Us" />} />
-        <Route path="franchise" element={<ComingSoon title="Franchise" />} />
-        <Route path="privacy" element={<ComingSoon title="Privacy Policy" />} />
-        <Route path="terms" element={<ComingSoon title="Terms & Conditions" />} />
-        <Route path="terms-deletion" element={<ComingSoon title="Account Deletion Terms" />} />
+        <Route path="about" element={<About />} />
+        <Route path="contact" element={<Contact />} />
+        <Route path="franchise" element={<Franchise />} />
+        <Route path="privacy" element={<PrivacyPolicy />} />
+        <Route path="terms" element={<TermsAndConditions />} />
+        <Route path="terms-deletion" element={<TermsDeletion />} />
 
         <Route path="products/:category" element={<ProductList />} />
         <Route path="products/:category/:productId" element={<ProductDetail />} />

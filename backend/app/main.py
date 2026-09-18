@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
-from app.routers import auth, cart, orders, products, profile
+from app.routers import auth, cart, contact, orders, products, profile
 
 logging.basicConfig(level=logging.INFO)
 
@@ -28,6 +28,7 @@ app.include_router(products.router)
 app.include_router(cart.router)
 app.include_router(orders.router)
 app.include_router(profile.router)
+app.include_router(contact.router)
 
 
 @app.get("/health")

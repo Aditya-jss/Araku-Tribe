@@ -6,7 +6,7 @@ export function Footer() {
       className="mt-16 px-6 py-10 text-sm text-white"
       style={{ backgroundColor: 'var(--color-brand-brown)' }}
     >
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 sm:grid-cols-3">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 sm:grid-cols-4">
         <div>
           <h3 className="mb-3 text-lg font-bold">ARAKU TRIBE</h3>
           <p className="opacity-80">From the heart of Araku Valley.</p>
@@ -34,6 +34,17 @@ export function Footer() {
             <li>
               <Link to="/terms">Terms &amp; Conditions</Link>
             </li>
+            <li>
+              <Link to="/terms-deletion">Account Deletion Terms</Link>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="mb-3 font-bold">Contact</h4>
+          <ul className="space-y-1 opacity-80">
+            <li>Araku Valley, Visakhapatnam</li>
+            <li>+91-7893-836-529</li>
+            <li>info@arakutribe.com</li>
           </ul>
         </div>
       </div>
