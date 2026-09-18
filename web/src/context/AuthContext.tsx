@@ -7,6 +7,7 @@ interface AuthContextValue {
   user: User | null
   isAuthenticated: boolean
   completeLogin: (token: string, user: User) => void
+  updateUser: (patch: Partial<User>) => void
   logout: () => Promise<void>
 }
 
@@ -33,6 +34,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(user)
   }
 
+  function updateUser(patch: Partial<User>) {
+    setUser((current) => {
+      if (!current) return current
+      const next = { ...current, ...patch }
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(next))
+      return next
+    })
+  }
+
   async function logout() {
     try {
       await authApi.logout()
@@ -45,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated: !!getToken() && !!user, completeLogin, logout }}
+      value={{ user, isAuthenticated: !!getToken() && !!user, completeLogin, updateUser, logout }}
     >
       {children}
     </AuthContext.Provider>

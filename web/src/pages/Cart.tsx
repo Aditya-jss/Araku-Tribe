@@ -1,17 +1,24 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import * as cartApi from '../api/cartApi'
+import { ApiError } from '../api/client'
 import { useCart } from '../hooks/useCart'
 import { formatPrice } from '../lib/format'
 
 export function Cart() {
   const { data, isLoading, isError } = useCart()
   const queryClient = useQueryClient()
+  const [error, setError] = useState<string | null>(null)
 
   const update = useMutation({
     mutationFn: ({ productId, op }: { productId: string; op: 'increase' | 'decrease' | 'delete' }) =>
       cartApi.updateCart(productId, op),
-    onSuccess: (res) => queryClient.setQueryData(['cart'], res),
+    onSuccess: (res) => {
+      setError(null)
+      queryClient.setQueryData(['cart'], res)
+    },
+    onError: (err) => setError(err instanceof ApiError ? err.message : 'Could not update cart'),
   })
 
   if (isLoading) return <p className="px-6 py-24 text-center text-brand-muted">Loading cart…</p>
@@ -38,6 +45,8 @@ export function Cart() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-12">
       <h1 className="mb-8 text-3xl">Your Cart</h1>
+
+      {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
       <ul className="divide-y">
         {items.map((item) => (
