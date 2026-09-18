@@ -1,8 +1,21 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/layout/Layout'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { Account } from './pages/Account'
+import { AccountDelete } from './pages/AccountDelete'
+import { AccountEdit } from './pages/AccountEdit'
+import { Cart } from './pages/Cart'
+import { Checkout } from './pages/Checkout'
 import { ComingSoon } from './pages/ComingSoon'
+import { ForgotPassword } from './pages/ForgotPassword'
 import { Home } from './pages/Home'
+import { Login } from './pages/Login'
+import { OrderDetail } from './pages/OrderDetail'
+import { Orders } from './pages/Orders'
+import { ProductDetail } from './pages/ProductDetail'
+import { ProductList } from './pages/ProductList'
+import { ResetPassword } from './pages/ResetPassword'
+import { Signup } from './pages/Signup'
 
 function App() {
   return (
@@ -17,19 +30,19 @@ function App() {
         <Route path="terms" element={<ComingSoon title="Terms & Conditions" />} />
         <Route path="terms-deletion" element={<ComingSoon title="Account Deletion Terms" />} />
 
-        <Route path="products/:category" element={<ComingSoon title="Products" />} />
-        <Route path="products/:category/:productId" element={<ComingSoon title="Product Detail" />} />
+        <Route path="products/:category" element={<ProductList />} />
+        <Route path="products/:category/:productId" element={<ProductDetail />} />
 
-        <Route path="login" element={<ComingSoon title="Sign In" />} />
-        <Route path="signup" element={<ComingSoon title="Create Account" />} />
-        <Route path="forgot-password" element={<ComingSoon title="Forgot Password" />} />
-        <Route path="reset-password" element={<ComingSoon title="Reset Password" />} />
+        <Route path="login" element={<Login />} />
+        <Route path="signup" element={<Signup />} />
+        <Route path="forgot-password" element={<ForgotPassword />} />
+        <Route path="reset-password" element={<ResetPassword />} />
 
         <Route
           path="cart"
           element={
             <ProtectedRoute>
-              <ComingSoon title="Your Cart" />
+              <Cart />
             </ProtectedRoute>
           }
         />
@@ -37,7 +50,7 @@ function App() {
           path="checkout"
           element={
             <ProtectedRoute>
-              <ComingSoon title="Checkout" />
+              <Checkout />
             </ProtectedRoute>
           }
         />
@@ -45,7 +58,7 @@ function App() {
           path="orders"
           element={
             <ProtectedRoute>
-              <ComingSoon title="Your Orders" />
+              <Orders />
             </ProtectedRoute>
           }
         />
@@ -53,7 +66,7 @@ function App() {
           path="orders/:orderId"
           element={
             <ProtectedRoute>
-              <ComingSoon title="Order Detail" />
+              <OrderDetail />
             </ProtectedRoute>
           }
         />
@@ -61,7 +74,7 @@ function App() {
           path="account"
           element={
             <ProtectedRoute>
-              <ComingSoon title="Your Account" />
+              <Account />
             </ProtectedRoute>
           }
         />
@@ -69,7 +82,7 @@ function App() {
           path="account/edit"
           element={
             <ProtectedRoute>
-              <ComingSoon title="Edit Profile" />
+              <AccountEdit />
             </ProtectedRoute>
           }
         />
@@ -77,7 +90,7 @@ function App() {
           path="account/transactions"
           element={
             <ProtectedRoute>
-              <ComingSoon title="Transactions" />
+              <Orders />
             </ProtectedRoute>
           }
         />
@@ -85,7 +98,7 @@ function App() {
           path="account/delete"
           element={
             <ProtectedRoute>
-              <ComingSoon title="Delete Account" />
+              <AccountDelete />
             </ProtectedRoute>
           }
         />
