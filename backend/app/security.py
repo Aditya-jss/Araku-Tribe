@@ -1,4 +1,4 @@
-import random
+import secrets
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
@@ -16,7 +16,7 @@ def verify_password(password: str, password_hash: str) -> bool:
 
 
 def generate_otp() -> str:
-    return f"{random.randint(0, 999999):06d}"
+    return f"{secrets.randbelow(1_000_000):06d}"
 
 
 def create_access_token(user_id: int) -> str:

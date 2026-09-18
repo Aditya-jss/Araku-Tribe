@@ -2,8 +2,17 @@
     python -m app.seed
 """
 
+from urllib.parse import quote
+
 from app.database import Base, SessionLocal, engine
 from app.models.product import Product
+
+# No real product photography exists yet, so seed data points at a
+# placeholder image service (rendered client-side) instead of a local
+# path that would 404. Swap for real uploaded images later.
+def _placeholder(label: str) -> str:
+    return f"https://placehold.co/600x600/f0c14b/3f271e?text={quote(label)}"
+
 
 PRODUCTS = [
     {
@@ -12,7 +21,7 @@ PRODUCTS = [
         "price": 349.00,
         "quantity": 120,
         "category": "bag",
-        "image": "/img/products/bag-arabica-250.jpg",
+        "image": _placeholder("Arabica 250g"),
         "min_order_quantity": 1,
     },
     {
@@ -21,7 +30,7 @@ PRODUCTS = [
         "price": 299.00,
         "quantity": 150,
         "category": "bag",
-        "image": "/img/products/bag-robusta-250.jpg",
+        "image": _placeholder("Robusta 250g"),
         "min_order_quantity": 1,
     },
     {
@@ -30,7 +39,7 @@ PRODUCTS = [
         "price": 599.00,
         "quantity": 80,
         "category": "bag",
-        "image": "/img/products/bag-dark-500.jpg",
+        "image": _placeholder("Dark Roast 500g"),
         "min_order_quantity": 1,
     },
     {
@@ -39,7 +48,7 @@ PRODUCTS = [
         "price": 249.00,
         "quantity": 60,
         "category": "cup",
-        "image": "/img/products/cup-ceramic.jpg",
+        "image": _placeholder("Filter Cup"),
         "min_order_quantity": 1,
     },
     {
@@ -48,7 +57,7 @@ PRODUCTS = [
         "price": 399.00,
         "quantity": 45,
         "category": "cup",
-        "image": "/img/products/cup-espresso-set.jpg",
+        "image": _placeholder("Espresso Set"),
         "min_order_quantity": 1,
     },
     {
@@ -57,7 +66,7 @@ PRODUCTS = [
         "price": 199.00,
         "quantity": 200,
         "category": "mug",
-        "image": "/img/products/mug-logo.jpg",
+        "image": _placeholder("Logo Mug"),
         "min_order_quantity": 1,
     },
     {
@@ -66,7 +75,7 @@ PRODUCTS = [
         "price": 349.00,
         "quantity": 70,
         "category": "mug",
-        "image": "/img/products/mug-handpainted.jpg",
+        "image": _placeholder("Tribal Mug"),
         "min_order_quantity": 1,
     },
     {
@@ -75,7 +84,7 @@ PRODUCTS = [
         "price": 499.00,
         "quantity": 100,
         "category": "tshirt",
-        "image": "/img/products/tshirt-black.jpg",
+        "image": _placeholder("T-Shirt Black"),
         "min_order_quantity": 1,
     },
     {
@@ -84,7 +93,7 @@ PRODUCTS = [
         "price": 499.00,
         "quantity": 100,
         "category": "tshirt",
-        "image": "/img/products/tshirt-white.jpg",
+        "image": _placeholder("T-Shirt White"),
         "min_order_quantity": 1,
     },
 ]

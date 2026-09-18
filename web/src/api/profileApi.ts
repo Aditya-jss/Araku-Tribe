@@ -39,10 +39,11 @@ export async function uploadProfilePicture(file: File): Promise<{ success: true;
     method: 'POST',
     headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     body: formData,
+    credentials: 'include',
   })
   const data = await res.json()
   if (!res.ok || data.success === false) {
-    throw new Error(data.error ?? 'Upload failed')
+    throw new Error(data.detail ?? data.error ?? 'Upload failed')
   }
   return data
 }

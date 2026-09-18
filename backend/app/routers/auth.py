@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.config import settings
@@ -21,6 +22,11 @@ router = APIRouter()
 
 PENDING_COOKIE = "pending_session"
 OTP_TTL_MINUTES = 10
+MAX_OTP_ATTEMPTS = 5
+
+
+def _normalize_email(email: str) -> str:
+    return email.strip().lower()
 
 
 def _set_pending_cookie(response: Response, user_id: int, purpose: str) -> None:
@@ -38,8 +44,24 @@ def _issue_otp(user: User, purpose: str) -> str:
     otp = generate_otp()
     user.otp_code = otp
     user.otp_expires_at = datetime.now(timezone.utc) + timedelta(minutes=OTP_TTL_MINUTES)
+    user.otp_attempts = 0
     send_otp_email(user.email, otp, purpose)
     return otp
+
+
+def _check_otp(user: User, submitted: str, db: Session) -> None:
+    """Validates an OTP, tracking failed attempts to prevent brute-forcing the
+    6-digit code within its TTL. Raises HTTPException on any failure."""
+    if user.otp_code is None or user.otp_expires_at is None or user.otp_expires_at < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="Invalid or expired OTP")
+
+    if user.otp_code != submitted:
+        user.otp_attempts += 1
+        if user.otp_attempts >= MAX_OTP_ATTEMPTS:
+            user.otp_code = None
+            user.otp_expires_at = None
+        db.commit()
+        raise HTTPException(status_code=400, detail="Invalid or expired OTP")
 
 
 def _user_public(user: User) -> dict:
@@ -92,20 +114,25 @@ def _signup(data: dict, response: Response, db: Session) -> dict:
     if len(data["password"]) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
 
-    existing = db.query(User).filter(User.email == data["email"]).one_or_none()
+    email = _normalize_email(data["email"])
+    existing = db.query(User).filter(User.email == email).one_or_none()
     if existing is not None:
         raise HTTPException(status_code=409, detail="An account with that email already exists")
 
     user = User(
         firstname=data["firstname"],
         lastname=data["lastname"],
-        email=data["email"],
+        email=email,
         phonenumber=data["phonenumber"],
         password_hash=hash_password(data["password"]),
         is_verified=False,
     )
     db.add(user)
-    db.flush()
+    try:
+        db.flush()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="An account with that email already exists") from None
     _issue_otp(user, "signup")
     db.commit()
 
@@ -116,7 +143,8 @@ def _signup(data: dict, response: Response, db: Session) -> dict:
 def _login(data: dict, response: Response, db: Session) -> dict:
     require_fields(data, "email", "password")
 
-    user = db.query(User).filter(User.email == data["email"]).one_or_none()
+    email = _normalize_email(data["email"])
+    user = db.query(User).filter(User.email == email).one_or_none()
     if user is None or not verify_password(data["password"], user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
@@ -138,14 +166,7 @@ def _resend_otp(request: Request, response: Response, db: Session) -> dict:
 def _verify_otp(data: dict, request: Request, response: Response, db: Session) -> dict:
     require_fields(data, "otp")
     user = _pending_user(request, db, "otp_auth")
-
-    if (
-        user.otp_code is None
-        or user.otp_expires_at is None
-        or user.otp_expires_at < datetime.now(timezone.utc)
-        or user.otp_code != data["otp"]
-    ):
-        raise HTTPException(status_code=400, detail="Invalid or expired OTP")
+    _check_otp(user, data["otp"], db)
 
     user.is_verified = True
     user.otp_code = None
@@ -164,15 +185,18 @@ def _logout(response: Response) -> dict:
 
 def _forgot_password(data: dict, response: Response, db: Session) -> dict:
     require_fields(data, "email")
-    user = db.query(User).filter(User.email == data["email"]).one_or_none()
-    if user is None:
-        raise HTTPException(status_code=404, detail="No account with that email")
+    email = _normalize_email(data["email"])
+    user = db.query(User).filter(User.email == email).one_or_none()
 
-    _issue_otp(user, "password_reset")
-    db.commit()
+    # Always respond the same way whether or not the account exists, so this
+    # endpoint can't be used to enumerate registered emails. The OTP/cookie is
+    # only actually issued when there's a real account to reset.
+    if user is not None:
+        _issue_otp(user, "password_reset")
+        db.commit()
+        _set_pending_cookie(response, user.user_id, "password_reset")
 
-    _set_pending_cookie(response, user.user_id, "password_reset")
-    return {"success": True, "message": "OTP sent to your email."}
+    return {"success": True, "message": "If an account exists for that email, an OTP has been sent."}
 
 
 def _reset_password(data: dict, request: Request, response: Response, db: Session) -> dict:
@@ -183,13 +207,7 @@ def _reset_password(data: dict, request: Request, response: Response, db: Sessio
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
 
     user = _pending_user(request, db, "password_reset")
-    if (
-        user.otp_code is None
-        or user.otp_expires_at is None
-        or user.otp_expires_at < datetime.now(timezone.utc)
-        or user.otp_code != data["otp"]
-    ):
-        raise HTTPException(status_code=400, detail="Invalid or expired OTP")
+    _check_otp(user, data["otp"], db)
 
     user.password_hash = hash_password(data["password"])
     user.otp_code = None

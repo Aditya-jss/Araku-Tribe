@@ -63,14 +63,28 @@ def _place(data: dict, user: User, db: Session) -> dict:
     if data["payment_method"] not in VALID_PAYMENT_METHODS:
         raise HTTPException(status_code=400, detail="Invalid payment method")
 
-    cart_rows = (
-        db.query(CartItem, Product)
-        .join(Product, Product.product_id == CartItem.product_id)
+    cart_items = (
+        db.query(CartItem)
         .filter(CartItem.user_id == user.user_id)
+        .order_by(CartItem.product_id)
         .all()
     )
-    if not cart_rows:
+    if not cart_items:
         raise HTTPException(status_code=400, detail="Your cart is empty")
+
+    # Lock the product rows (in a stable order, to avoid deadlocking against a
+    # concurrent checkout) before checking stock, so two simultaneous orders
+    # for the last unit can't both pass the check and oversell it.
+    product_ids = [item.product_id for item in cart_items]
+    products = (
+        db.query(Product)
+        .filter(Product.product_id.in_(product_ids))
+        .order_by(Product.product_id)
+        .with_for_update()
+        .all()
+    )
+    products_by_id = {p.product_id: p for p in products}
+    cart_rows = [(item, products_by_id[item.product_id]) for item in cart_items]
 
     for cart_item, product in cart_rows:
         if cart_item.quantity > product.quantity:

@@ -52,20 +52,24 @@ async def profile_endpoint(
 
 
 def _update(data: dict, user: User, db: Session) -> dict:
-    require_fields(data, "firstname", "lastname", "email", "phonenumber", "area", "landmark", "zipcode")
+    # area/landmark/zipcode are optional address fields (default "") and must
+    # stay excluded from require_fields so a user can submit them blank to
+    # clear a previously-set address.
+    require_fields(data, "firstname", "lastname", "email", "phonenumber")
 
-    if data["email"] != user.email:
-        existing = db.query(User).filter(User.email == data["email"]).one_or_none()
+    email = data["email"].strip().lower()
+    if email != user.email:
+        existing = db.query(User).filter(User.email == email).one_or_none()
         if existing is not None:
             raise HTTPException(status_code=409, detail="An account with that email already exists")
 
     user.firstname = data["firstname"]
     user.lastname = data["lastname"]
-    user.email = data["email"]
+    user.email = email
     user.phonenumber = data["phonenumber"]
-    user.area = data["area"]
-    user.landmark = data["landmark"]
-    user.zipcode = data["zipcode"]
+    user.area = data.get("area", "")
+    user.landmark = data.get("landmark", "")
+    user.zipcode = data.get("zipcode", "")
     db.commit()
 
     return {"success": True}
