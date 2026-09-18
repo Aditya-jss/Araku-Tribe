@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.database import get_db
+from app.deps import get_current_user
 from app.email import send_otp_email
 from app.models.user import User
 from app.security import (
@@ -82,6 +83,13 @@ def _pending_user(request: Request, db: Session, purpose: str) -> User:
     if user is None:
         raise HTTPException(status_code=401, detail="Verification session expired, please start again")
     return user
+
+
+@router.get("/api/auth/me")
+def me(user: User = Depends(get_current_user)) -> dict:
+    """Used by the Google OAuth callback page to fetch user details for a
+    freshly-issued token (which isn't in localStorage yet at that point)."""
+    return {"success": True, "user": _user_public(user)}
 
 
 @router.api_route("/api/auth.php", methods=["GET", "POST"])

@@ -24,6 +24,7 @@ import { Checkout } from './pages/Checkout'
 import { Contact } from './pages/Contact'
 import { ForgotPassword } from './pages/ForgotPassword'
 import { Franchise } from './pages/Franchise'
+import { GoogleAuthComplete } from './pages/GoogleAuthComplete'
 import { Home } from './pages/Home'
 import { Login } from './pages/Login'
 import { OrderDetail } from './pages/OrderDetail'
@@ -53,6 +54,7 @@ function App() {
         <Route path="products/:category/:productId" element={<ProductDetail />} />
 
         <Route path="login" element={<Login />} />
+        <Route path="auth/google/complete" element={<GoogleAuthComplete />} />
         <Route path="signup" element={<Signup />} />
         <Route path="forgot-password" element={<ForgotPassword />} />
         <Route path="reset-password" element={<ResetPassword />} />

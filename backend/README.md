@@ -16,6 +16,8 @@ by an `action` field (query string on GET, form body on POST):
 - `POST/GET /api/orders.php` — `place`, `list`, `detail`, `cancel` (requires auth)
 - `POST/GET /api/profile.php` — `get`, `update`, `delete_account` (requires auth)
 - `POST /api/profile_picture.php` — multipart upload (requires auth)
+- `GET /api/auth/me` — current user from a bearer token (used by the Google login callback)
+- `GET /api/auth/google/login` / `GET /api/auth/google/callback` — "Sign in with Google" (see below)
 
 Login/signup/forgot_password issue a one-time code (logged to stdout by the
 stub mailer in `app/email.py` — swap in a real provider later) and set a
@@ -57,6 +59,23 @@ threshold — `low_stock_alerted` flips on when stock dips to or below it
 (checked on every admin edit, checkout, and cancellation) and resets once
 restocked above it, so `/api/admin/inventory-alerts` only re-surfaces a
 product after a fresh dip rather than on every request.
+
+## Google login
+
+Server-side OAuth 2.0 authorization-code flow (a plain link to
+`/api/auth/google/login`, not a JS SDK). Without real credentials configured,
+the login button shows a clear "not set up" error instead of a broken
+redirect — this is the default state, since no credentials are checked into
+this repo.
+
+To enable it: create an OAuth Client ID (Web application) at
+[Google Cloud Console](https://console.cloud.google.com/apis/credentials),
+add your `GOOGLE_REDIRECT_URI` as an authorized redirect URI, and set
+`GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`/`GOOGLE_REDIRECT_URI`/
+`FRONTEND_BASE_URL` (see `.env.example`). Signing in links to an existing
+account by email if one exists, otherwise creates a new (pre-verified) one —
+unlike the legacy site, this does **not** additionally require an OTP after
+Google has already verified the email.
 
 ## Local development
 

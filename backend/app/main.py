@@ -16,6 +16,7 @@ from app.routers import (
     auth,
     cart,
     contact,
+    google_auth,
     orders,
     products,
     profile,
@@ -37,6 +38,7 @@ os.makedirs(settings.uploads_dir, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=settings.uploads_dir), name="uploads")
 
 app.include_router(auth.router)
+app.include_router(google_auth.router)
 app.include_router(products.router)
 app.include_router(cart.router)
 app.include_router(orders.router)

@@ -15,6 +15,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     phonenumber: Mapped[str] = mapped_column(String(20))
     password_hash: Mapped[str] = mapped_column(String(255))
+    google_id: Mapped[str | None] = mapped_column(String(255), unique=True, nullable=True)
 
     area: Mapped[str] = mapped_column(String(255), default="")
     landmark: Mapped[str] = mapped_column(String(255), default="")

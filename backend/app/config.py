@@ -12,6 +12,14 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:5173"
     uploads_dir: str = "uploads"
 
+    # Google OAuth ("Sign in with Google"). Empty by default — the login
+    # endpoint returns a clear error rather than a broken redirect until a
+    # real Client ID/Secret from Google Cloud Console are set.
+    google_client_id: str = ""
+    google_client_secret: str = ""
+    google_redirect_uri: str = "http://localhost:8000/api/auth/google/callback"
+    frontend_base_url: str = "http://localhost:5173"
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]

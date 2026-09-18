@@ -1,12 +1,18 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { z } from 'zod'
 import * as authApi from '../api/authApi'
 import { ApiError } from '../api/client'
+import { GoogleButton } from '../components/GoogleButton'
 import { OtpStep } from '../components/OtpStep'
 import { useAuth } from '../context/AuthContext'
+
+const GOOGLE_ERROR_MESSAGES: Record<string, string> = {
+  google_not_configured: 'Google sign-in is not set up yet.',
+  google_auth_failed: 'Google sign-in failed. Please try again or use your email and password.',
+}
 
 const schema = z.object({
   email: z.string().email('Enter a valid email'),
@@ -20,6 +26,8 @@ export function Login() {
   const navigate = useNavigate()
   const location = useLocation()
   const from = (location.state as { from?: Location })?.from?.pathname ?? '/'
+  const [searchParams] = useSearchParams()
+  const googleError = searchParams.get('error')
 
   const [step, setStep] = useState<'form' | 'otp'>('form')
   const [formError, setFormError] = useState<string | null>(null)
@@ -51,6 +59,12 @@ export function Login() {
   return (
     <div className="mx-auto max-w-md px-6 py-16">
       <h1 className="mb-6 text-center text-3xl">Sign In</h1>
+
+      {googleError && (
+        <p className="mb-4 rounded border border-red-300 bg-red-50 p-3 text-center text-sm text-red-600">
+          {GOOGLE_ERROR_MESSAGES[googleError] ?? 'Something went wrong signing you in.'}
+        </p>
+      )}
 
       {step === 'form' ? (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -97,6 +111,13 @@ export function Login() {
               Create an account
             </Link>
           </p>
+
+          <div className="flex items-center gap-3 text-xs text-brand-muted">
+            <div className="h-px flex-1 bg-gray-200" />
+            or
+            <div className="h-px flex-1 bg-gray-200" />
+          </div>
+          <GoogleButton />
         </form>
       ) : (
         <OtpStep
