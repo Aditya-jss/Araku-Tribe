@@ -27,6 +27,14 @@ services:
       JWT_SECRET: change-me-to-a-long-random-string
       CORS_ORIGINS: http://localhost:5173
       UPLOADS_DIR: /app/uploads
+      # Bootstraps the first superadmin on startup (see app/seed_admin.py).
+      # Dev-only default credentials — change these for anything beyond local use.
+      ADMIN_EMAIL: admin@arakutribe.com
+      ADMIN_PASSWORD: changeme123
+      # AI shopping assistant — set in your shell or a .env file next to this
+      # compose file (never commit a real key). Left unset, the chat widget
+      # shows a clear "not configured" error instead of failing silently.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     ports:
       - "8000:8000"
     volumes:

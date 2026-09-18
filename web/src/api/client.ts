@@ -49,11 +49,12 @@ export async function apiCall<T>(
     headers['Content-Type'] = 'application/x-www-form-urlencoded'
   }
 
-  const res = await fetch(url, { method, headers, body })
+  const res = await fetch(url, { method, headers, body, credentials: 'include' })
   const data = await res.json()
 
   if (!res.ok || data.success === false) {
-    throw new ApiError(data.error ?? data.message ?? 'Request failed', res.status)
+    // FastAPI's HTTPException serializes as { detail }; older fallbacks kept for safety.
+    throw new ApiError(data.detail ?? data.error ?? data.message ?? 'Request failed', res.status)
   }
 
   return data as T

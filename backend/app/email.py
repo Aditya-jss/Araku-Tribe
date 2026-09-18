@@ -16,3 +16,8 @@ def send_otp_email(to_email: str, otp: str, purpose: str) -> bool:
 def send_order_confirmation_email(to_email: str, order_id: int, total: float) -> bool:
     logger.info("Order confirmation for %s: order #%s, total %.2f", to_email, order_id, total)
     return True
+
+
+def send_contact_message(name: str, email: str, phone: str, subject: str, message: str) -> bool:
+    logger.info("Contact form from %s <%s> (%s), subject=%r: %s", name, email, phone, subject, message)
+    return True

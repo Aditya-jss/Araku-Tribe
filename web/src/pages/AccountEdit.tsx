@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import { ApiError } from '../api/client'
 import * as profileApi from '../api/profileApi'
+import { useAuth } from '../context/AuthContext'
 
 const schema = z.object({
   firstname: z.string().min(1, 'Required'),
@@ -22,6 +23,7 @@ type FormValues = z.infer<typeof schema>
 export function AccountEdit() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { updateUser } = useAuth()
 
   const { data, isLoading } = useQuery({
     queryKey: ['profile'],
@@ -54,6 +56,12 @@ export function AccountEdit() {
     try {
       await profileApi.updateProfile(values)
       queryClient.invalidateQueries({ queryKey: ['profile'] })
+      updateUser({
+        firstname: values.firstname,
+        lastname: values.lastname,
+        email: values.email,
+        phonenumber: values.phonenumber,
+      })
       navigate('/account')
     } catch (err) {
       setError('root', { message: err instanceof ApiError ? err.message : 'Update failed' })

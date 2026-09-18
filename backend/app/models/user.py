@@ -15,6 +15,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     phonenumber: Mapped[str] = mapped_column(String(20))
     password_hash: Mapped[str] = mapped_column(String(255))
+    google_id: Mapped[str | None] = mapped_column(String(255), unique=True, nullable=True)
 
     area: Mapped[str] = mapped_column(String(255), default="")
     landmark: Mapped[str] = mapped_column(String(255), default="")
@@ -25,5 +26,6 @@ class User(Base):
 
     otp_code: Mapped[str | None] = mapped_column(String(6), nullable=True)
     otp_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    otp_attempts: Mapped[int] = mapped_column(default=0)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)

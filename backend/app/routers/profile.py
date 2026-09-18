@@ -7,10 +7,9 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.database import get_db
 from app.deps import get_current_user
-from app.models.cart import CartItem
-from app.models.order import Order, OrderItem
 from app.models.user import User
 from app.security import verify_password
+from app.services.users import delete_user_cascade
 from app.utils import get_request_data, require_fields
 
 router = APIRouter()
@@ -52,20 +51,24 @@ async def profile_endpoint(
 
 
 def _update(data: dict, user: User, db: Session) -> dict:
-    require_fields(data, "firstname", "lastname", "email", "phonenumber", "area", "landmark", "zipcode")
+    # area/landmark/zipcode are optional address fields (default "") and must
+    # stay excluded from require_fields so a user can submit them blank to
+    # clear a previously-set address.
+    require_fields(data, "firstname", "lastname", "email", "phonenumber")
 
-    if data["email"] != user.email:
-        existing = db.query(User).filter(User.email == data["email"]).one_or_none()
+    email = data["email"].strip().lower()
+    if email != user.email:
+        existing = db.query(User).filter(User.email == email).one_or_none()
         if existing is not None:
             raise HTTPException(status_code=409, detail="An account with that email already exists")
 
     user.firstname = data["firstname"]
     user.lastname = data["lastname"]
-    user.email = data["email"]
+    user.email = email
     user.phonenumber = data["phonenumber"]
-    user.area = data["area"]
-    user.landmark = data["landmark"]
-    user.zipcode = data["zipcode"]
+    user.area = data.get("area", "")
+    user.landmark = data.get("landmark", "")
+    user.zipcode = data.get("zipcode", "")
     db.commit()
 
     return {"success": True}
@@ -76,18 +79,7 @@ def _delete_account(data: dict, user: User, db: Session) -> dict:
     if not verify_password(data["password"], user.password_hash):
         raise HTTPException(status_code=401, detail="Incorrect password")
 
-    order_ids = [o.order_id for o in db.query(Order).filter(Order.user_id == user.user_id).all()]
-    if order_ids:
-        db.query(OrderItem).filter(OrderItem.order_id.in_(order_ids)).delete(synchronize_session=False)
-        db.query(Order).filter(Order.user_id == user.user_id).delete(synchronize_session=False)
-    db.query(CartItem).filter(CartItem.user_id == user.user_id).delete(synchronize_session=False)
-
-    if user.profile_picture:
-        path = os.path.join(settings.uploads_dir, os.path.basename(user.profile_picture))
-        if os.path.exists(path):
-            os.remove(path)
-
-    db.delete(user)
+    delete_user_cascade(user, db)
     db.commit()
 
     return {"success": True, "message": "Account deleted"}
