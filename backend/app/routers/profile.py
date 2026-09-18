@@ -7,10 +7,9 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.database import get_db
 from app.deps import get_current_user
-from app.models.cart import CartItem
-from app.models.order import Order, OrderItem
 from app.models.user import User
 from app.security import verify_password
+from app.services.users import delete_user_cascade
 from app.utils import get_request_data, require_fields
 
 router = APIRouter()
@@ -80,18 +79,7 @@ def _delete_account(data: dict, user: User, db: Session) -> dict:
     if not verify_password(data["password"], user.password_hash):
         raise HTTPException(status_code=401, detail="Incorrect password")
 
-    order_ids = [o.order_id for o in db.query(Order).filter(Order.user_id == user.user_id).all()]
-    if order_ids:
-        db.query(OrderItem).filter(OrderItem.order_id.in_(order_ids)).delete(synchronize_session=False)
-        db.query(Order).filter(Order.user_id == user.user_id).delete(synchronize_session=False)
-    db.query(CartItem).filter(CartItem.user_id == user.user_id).delete(synchronize_session=False)
-
-    if user.profile_picture:
-        path = os.path.join(settings.uploads_dir, os.path.basename(user.profile_picture))
-        if os.path.exists(path):
-            os.remove(path)
-
-    db.delete(user)
+    delete_user_cascade(user, db)
     db.commit()
 
     return {"success": True, "message": "Account deleted"}

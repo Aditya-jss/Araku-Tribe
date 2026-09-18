@@ -8,6 +8,7 @@ from app.models.cart import CartItem
 from app.models.order import Order, OrderItem
 from app.models.product import Product
 from app.models.user import User
+from app.services.products import sync_low_stock
 from app.utils import get_request_data, require_fields
 
 router = APIRouter()
@@ -121,6 +122,7 @@ def _place(data: dict, user: User, db: Session) -> dict:
             )
         )
         product.quantity -= cart_item.quantity
+        sync_low_stock(product)
         db.delete(cart_item)
 
     db.commit()
@@ -173,6 +175,7 @@ def _cancel(data: dict, user: User, db: Session) -> dict:
         product = db.get(Product, item.product_id)
         if product is not None:
             product.quantity += item.quantity
+            sync_low_stock(product)
 
     order.order_status = "Cancelled"
     db.commit()

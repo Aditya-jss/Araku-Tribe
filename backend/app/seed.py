@@ -6,6 +6,7 @@ from urllib.parse import quote
 
 from app.database import Base, SessionLocal, engine
 from app.models.product import Product
+from app.services.products import sync_low_stock
 
 # Real product photography (from the legacy arakutribe.com catalog) ships as
 # static frontend assets under web/public/img/shop/. T-shirts have no real
@@ -107,10 +108,12 @@ def seed() -> None:
         for data in PRODUCTS:
             product = db.get(Product, data["product_id"])
             if product is None:
-                db.add(Product(**data))
+                product = Product(**data)
+                db.add(product)
             else:
                 for key, value in data.items():
                     setattr(product, key, value)
+            sync_low_stock(product)
         db.commit()
         print(f"Seeded {len(PRODUCTS)} products.")
     finally:

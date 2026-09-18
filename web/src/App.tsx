@@ -1,4 +1,18 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { AdminLayout } from './admin/components/AdminLayout'
+import { AdminProtectedRoute } from './admin/components/AdminProtectedRoute'
+import { AdminAdmins } from './admin/pages/AdminAdmins'
+import { AdminDashboard } from './admin/pages/AdminDashboard'
+import { AdminForgotPassword } from './admin/pages/AdminForgotPassword'
+import { AdminInventoryAlerts } from './admin/pages/AdminInventoryAlerts'
+import { AdminLogin } from './admin/pages/AdminLogin'
+import { AdminOrderDetail } from './admin/pages/AdminOrderDetail'
+import { AdminOrders } from './admin/pages/AdminOrders'
+import { AdminProductForm } from './admin/pages/AdminProductForm'
+import { AdminProducts } from './admin/pages/AdminProducts'
+import { AdminResetPassword } from './admin/pages/AdminResetPassword'
+import { AdminUserDetail } from './admin/pages/AdminUserDetail'
+import { AdminUsers } from './admin/pages/AdminUsers'
 import { Layout } from './components/layout/Layout'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { About } from './pages/About'
@@ -109,6 +123,79 @@ function App() {
         />
 
         <Route path="*" element={<Navigate to="/" replace />} />
+      </Route>
+
+      <Route path="admin/login" element={<AdminLogin />} />
+      <Route path="admin/forgot-password" element={<AdminForgotPassword />} />
+      <Route path="admin/reset-password" element={<AdminResetPassword />} />
+
+      <Route
+        path="admin"
+        element={
+          <AdminProtectedRoute>
+            <AdminLayout />
+          </AdminProtectedRoute>
+        }
+      >
+        <Route index element={<AdminDashboard />} />
+        <Route path="products" element={<AdminProducts />} />
+        <Route
+          path="products/new"
+          element={
+            <AdminProtectedRoute minRole="manager">
+              <AdminProductForm mode="create" />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="products/:productId/edit"
+          element={
+            <AdminProtectedRoute minRole="manager">
+              <AdminProductForm mode="edit" />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="orders"
+          element={
+            <AdminProtectedRoute minRole="manager">
+              <AdminOrders />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="orders/:orderId"
+          element={
+            <AdminProtectedRoute minRole="manager">
+              <AdminOrderDetail />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="users"
+          element={
+            <AdminProtectedRoute minRole="admin">
+              <AdminUsers />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="users/:userId"
+          element={
+            <AdminProtectedRoute minRole="admin">
+              <AdminUserDetail />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route path="inventory-alerts" element={<AdminInventoryAlerts />} />
+        <Route
+          path="admins"
+          element={
+            <AdminProtectedRoute minRole="superadmin">
+              <AdminAdmins />
+            </AdminProtectedRoute>
+          }
+        />
       </Route>
     </Routes>
   )
