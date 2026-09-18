@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     google_redirect_uri: str = "http://localhost:8000/api/auth/google/callback"
     frontend_base_url: str = "http://localhost:5173"
 
+    # AI chatbot (Claude API). Empty by default — the chat endpoint returns a
+    # clear "not configured" error until a real key is set.
+    anthropic_api_key: str = ""
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]

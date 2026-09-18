@@ -26,6 +26,21 @@ def get_current_user(
     return user
 
 
+def get_current_user_optional(
+    authorization: str | None = Header(default=None),
+    db: Session = Depends(get_db),
+) -> User | None:
+    """Like get_current_user, but returns None instead of raising when there's
+    no (or an invalid) token — for endpoints usable by both guests and
+    signed-in customers, such as the AI chat assistant."""
+    if not authorization or not authorization.lower().startswith("bearer "):
+        return None
+    user_id = decode_access_token(authorization.split(" ", 1)[1].strip())
+    if user_id is None:
+        return None
+    return db.get(User, user_id)
+
+
 def get_current_admin(
     authorization: str | None = Header(default=None),
     db: Session = Depends(get_db),

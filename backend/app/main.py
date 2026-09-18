@@ -13,6 +13,7 @@ from app.routers import (
     admin_orders,
     admin_products,
     admin_users,
+    ai_chat,
     auth,
     cart,
     contact,
@@ -50,6 +51,7 @@ app.include_router(admin_products.router)
 app.include_router(admin_users.router)
 app.include_router(admin_orders.router)
 app.include_router(admin_admins.router)
+app.include_router(ai_chat.router)
 
 
 @app.get("/health")

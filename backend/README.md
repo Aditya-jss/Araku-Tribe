@@ -77,6 +77,27 @@ account by email if one exists, otherwise creates a new (pre-verified) one —
 unlike the legacy site, this does **not** additionally require an OTP after
 Google has already verified the email.
 
+## AI shopping assistant
+
+`POST /api/ai/chat` replaces the earlier click-driven chatbot with a real
+Claude-powered assistant (`app/services/ai_chat.py`), using `claude-opus-5`
+with tool use. It calls the *same* handler functions the REST routers use
+(`products._list`/`_detail`, `cart._add`/`_cart_response`,
+`orders._list`/`_detail`/`_cancel`) as its tools, so business rules — stock
+checks, ownership, low-stock sync — live in exactly one place regardless of
+which surface (widget or REST) triggers them. Tools that touch cart/orders
+require a signed-in customer (optional auth — guests can browse/search); the
+model is told to point ungated users at `/login`.
+
+Requires `ANTHROPIC_API_KEY` (get one at
+[console.anthropic.com](https://console.anthropic.com/)) — unset, the widget
+shows a clear "not configured" error. The endpoint is reachable by anonymous
+guests and each message costs real money, so it has a basic in-memory
+per-IP rate limit (20 messages / 10 minutes) — process-local, not shared
+across replicas; a multi-instance deployment needs a shared store (Redis)
+instead. The tool-call loop is capped at 6 iterations as a cost/runaway
+safety net.
+
 ## Local development
 
 Requires Docker (for Postgres) and Python 3.12+.
