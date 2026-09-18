@@ -4,6 +4,7 @@ import { HiMenu, HiX } from 'react-icons/hi'
 import { Link, NavLink } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../hooks/useCart'
+import { formatPrice } from '../../lib/format'
 
 const PRODUCT_LINKS: { label: string; category: string }[] = [
   { label: 'Coffee Bags', category: 'bag' },
@@ -64,7 +65,7 @@ export function Header() {
                         <li key={item.product_id} className="py-2">
                           <strong>{item.product_name}</strong>
                           <div>
-                            ${item.price.toFixed(2)} × {item.quantity}
+                            {formatPrice(item.price)} × {item.quantity}
                           </div>
                         </li>
                       ))}

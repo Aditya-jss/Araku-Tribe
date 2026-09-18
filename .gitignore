@@ -21,10 +21,12 @@ npm-debug.log*
 !.vscode/extensions.json
 .idea
 
-# Python (future backend/ package)
+# Python (backend/ package)
 __pycache__/
 *.pyc
 .venv/
+backend/uploads/*
+!backend/uploads/.gitkeep
 
 # Terraform (future infra/ package)
 .terraform/
