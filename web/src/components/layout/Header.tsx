@@ -123,7 +123,8 @@ export function Header() {
       </div>
 
       <div className="flex items-center justify-between px-6 py-3">
-        <Link to="/" className="text-2xl font-bold" style={{ color: 'var(--color-brand-brown)' }}>
+        <Link to="/" className="flex items-center gap-2 text-2xl font-bold" style={{ color: 'var(--color-brand-brown)' }}>
+          <img src="/logo.svg" alt="" className="h-9 w-9" />
           ARAKU TRIBE
         </Link>
 
