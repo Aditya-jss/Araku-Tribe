@@ -44,3 +44,9 @@ export function forgotPassword(email: string) {
 export function resetPassword(input: { otp: string; password: string; repeat_password: string }) {
   return apiCall<{ success: true; message: string }>(PATH, 'reset_password', input)
 }
+
+/** Used by the Google OAuth callback page to fetch user details for a token
+ * that isn't in localStorage yet at that point. */
+export function me() {
+  return apiCall<{ success: true; user: User }>('/api/auth/me', '', {}, 'GET')
+}

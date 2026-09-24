@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import * as authApi from '../api/authApi'
 import { ApiError } from '../api/client'
+import { GoogleButton } from '../components/GoogleButton'
 import { OtpStep } from '../components/OtpStep'
 import { useAuth } from '../context/AuthContext'
 
@@ -139,6 +140,13 @@ export function Signup() {
               Sign in
             </Link>
           </p>
+
+          <div className="flex items-center gap-3 text-xs text-brand-muted">
+            <div className="h-px flex-1 bg-gray-200" />
+            or
+            <div className="h-px flex-1 bg-gray-200" />
+          </div>
+          <GoogleButton />
         </form>
       ) : (
         <OtpStep

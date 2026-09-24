@@ -16,6 +16,8 @@ by an `action` field (query string on GET, form body on POST):
 - `POST/GET /api/orders.php` — `place`, `list`, `detail`, `cancel` (requires auth)
 - `POST/GET /api/profile.php` — `get`, `update`, `delete_account` (requires auth)
 - `POST /api/profile_picture.php` — multipart upload (requires auth)
+- `GET /api/auth/me` — current user from a bearer token (used by the Google login callback)
+- `GET /api/auth/google/login` / `GET /api/auth/google/callback` — "Sign in with Google" (see below)
 
 Login/signup/forgot_password issue a one-time code (logged to stdout by the
 stub mailer in `app/email.py` — swap in a real provider later) and set a
@@ -23,6 +25,78 @@ short-lived `pending_session` httpOnly cookie identifying which user the
 follow-up `resend_otp`/`verify_otp`/`reset_password` call is for, matching how
 the legacy PHP session-based flow worked. `verify_otp` exchanges the OTP for a
 JWT bearer token used on every subsequent request.
+
+## Admin API
+
+Unlike the customer endpoints above, the admin API is a fresh JSON REST
+design under `/api/admin/*` (no legacy contract to preserve) — deliberately
+**not** replicating the legacy admin panel's security model, which had
+critical vulnerabilities (SQL injection, no auth on some pages, self-service
+admin signup, password reset by email alone). Notable differences here:
+
+- **No public admin signup.** The first superadmin is bootstrapped via
+  `python -m app.seed_admin` (reads `ADMIN_EMAIL`/`ADMIN_PASSWORD`/
+  `ADMIN_FIRSTNAME`/`ADMIN_LASTNAME` env vars, safe to re-run). Every other
+  admin account is created by an existing superadmin through
+  `POST /api/admin/admins`.
+- **Role-gated on every endpoint**, not just in the UI: `staff` < `manager` <
+  `admin` < `superadmin` (see `app/models/admin.py`). Staff can only move a
+  product's stock quantity; manager+ can fully manage products and orders;
+  admin+ can manage customer accounts; superadmin manages other admins and
+  can delete products/customers.
+- **Password reset requires an OTP** (same mechanism as customers), not
+  "reset by email alone."
+- A superadmin can't delete or demote themselves out of existence — the API
+  blocks removing the last remaining superadmin.
+
+Endpoints: `/api/admin/auth/{login,me,forgot-password,reset-password}`,
+`/api/admin/dashboard`, `/api/admin/inventory-alerts`,
+`/api/admin/products` (+ `/{id}`), `/api/admin/users` (+ `/{id}`),
+`/api/admin/orders` (+ `/{id}`, `/{id}/status`), `/api/admin/admins` (+ `/{id}`).
+
+Products carry a `min_order_quantity` that doubles as a low-stock reorder
+threshold — `low_stock_alerted` flips on when stock dips to or below it
+(checked on every admin edit, checkout, and cancellation) and resets once
+restocked above it, so `/api/admin/inventory-alerts` only re-surfaces a
+product after a fresh dip rather than on every request.
+
+## Google login
+
+Server-side OAuth 2.0 authorization-code flow (a plain link to
+`/api/auth/google/login`, not a JS SDK). Without real credentials configured,
+the login button shows a clear "not set up" error instead of a broken
+redirect — this is the default state, since no credentials are checked into
+this repo.
+
+To enable it: create an OAuth Client ID (Web application) at
+[Google Cloud Console](https://console.cloud.google.com/apis/credentials),
+add your `GOOGLE_REDIRECT_URI` as an authorized redirect URI, and set
+`GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`/`GOOGLE_REDIRECT_URI`/
+`FRONTEND_BASE_URL` (see `.env.example`). Signing in links to an existing
+account by email if one exists, otherwise creates a new (pre-verified) one —
+unlike the legacy site, this does **not** additionally require an OTP after
+Google has already verified the email.
+
+## AI shopping assistant
+
+`POST /api/ai/chat` replaces the earlier click-driven chatbot with a real
+Claude-powered assistant (`app/services/ai_chat.py`), using `claude-opus-5`
+with tool use. It calls the *same* handler functions the REST routers use
+(`products._list`/`_detail`, `cart._add`/`_cart_response`,
+`orders._list`/`_detail`/`_cancel`) as its tools, so business rules — stock
+checks, ownership, low-stock sync — live in exactly one place regardless of
+which surface (widget or REST) triggers them. Tools that touch cart/orders
+require a signed-in customer (optional auth — guests can browse/search); the
+model is told to point ungated users at `/login`.
+
+Requires `ANTHROPIC_API_KEY` (get one at
+[console.anthropic.com](https://console.anthropic.com/)) — unset, the widget
+shows a clear "not configured" error. The endpoint is reachable by anonymous
+guests and each message costs real money, so it has a basic in-memory
+per-IP rate limit (20 messages / 10 minutes) — process-local, not shared
+across replicas; a multi-instance deployment needs a shared store (Redis)
+instead. The tool-call loop is capped at 6 iterations as a cost/runaway
+safety net.
 
 ## Local development
 
@@ -39,6 +113,7 @@ cp .env.example .env   # defaults already point at the docker-compose db
 
 alembic upgrade head    # create schema
 python -m app.seed      # load demo products
+ADMIN_EMAIL=you@example.com ADMIN_PASSWORD=changeme123 python -m app.seed_admin  # bootstrap the first superadmin
 uvicorn app.main:app --reload --port 8000
 ```
 

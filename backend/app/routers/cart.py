@@ -63,6 +63,8 @@ def _add(data: dict, user: User, db: Session) -> dict:
         quantity = int(data["quantity"])
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid quantity")
+    if quantity <= 0:
+        raise HTTPException(status_code=400, detail="Quantity must be positive")
 
     product = db.get(Product, data["product_id"])
     if product is None:

@@ -36,4 +36,4 @@ npm install
 npm run dev
 ```
 
-The Vite dev server proxies `/api`, `/chatbot_api.php`, `/mail.php`, `/uploads`, and `/img` to `http://localhost:8000`, which is now this repo's own `backend/` service (see `backend/README.md`) rather than the legacy PHP app.
+The Vite dev server proxies `/api`, `/chatbot_api.php`, `/mail.php`, and `/uploads` to `http://localhost:8000`, which is now this repo's own `backend/` service (see `backend/README.md`) rather than the legacy PHP app. `/img` is served directly from `web/public/img/` (static product/marketing images), not proxied.
