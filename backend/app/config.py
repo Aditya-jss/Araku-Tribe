@@ -24,6 +24,17 @@ class Settings(BaseSettings):
     # clear "not configured" error until a real key is set.
     anthropic_api_key: str = ""
 
+    # Transactional email (Resend). Empty by default — falls back to logging
+    # OTPs/emails to stdout instead of sending them. email_from defaults to
+    # Resend's shared sandbox sender, which works without verifying a domain.
+    resend_api_key: str = ""
+    email_from: str = "Araku Tribe <onboarding@resend.dev>"
+    # Where contact-form submissions get emailed to. Empty by default — Resend's
+    # shared sandbox sender can only deliver to the account owner's own
+    # verified address anyway, until a custom domain is verified, so this is
+    # log-only until you set it to a real inbox you control.
+    contact_notification_email: str = ""
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]

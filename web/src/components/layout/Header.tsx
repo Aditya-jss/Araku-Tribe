@@ -92,6 +92,9 @@ export function Header() {
                 Hello, {user?.firstname ?? 'User'} ▾
               </button>
               <div className="absolute right-0 hidden w-40 rounded border bg-white text-black shadow-lg group-hover:block">
+                <Link to="/dashboard" className="block px-4 py-2 hover:bg-gray-100">
+                  Dashboard
+                </Link>
                 <Link to="/account" className="block px-4 py-2 hover:bg-gray-100">
                   Profile
                 </Link>
@@ -195,6 +198,9 @@ export function Header() {
           <hr className="my-2" />
           {isAuthenticated ? (
             <>
+              <Link to="/dashboard" onClick={() => setMobileNavOpen(false)}>
+                Dashboard
+              </Link>
               <Link to="/account" onClick={() => setMobileNavOpen(false)}>
                 Profile
               </Link>

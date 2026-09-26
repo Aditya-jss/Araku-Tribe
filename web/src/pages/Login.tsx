@@ -25,7 +25,7 @@ export function Login() {
   const { completeLogin } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const from = (location.state as { from?: Location })?.from?.pathname ?? '/'
+  const from = (location.state as { from?: Location })?.from?.pathname ?? '/dashboard'
   const [searchParams] = useSearchParams()
   const googleError = searchParams.get('error')
 

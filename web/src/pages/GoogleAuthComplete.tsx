@@ -21,7 +21,7 @@ export function GoogleAuthComplete() {
       .me()
       .then((res) => {
         completeLogin(token, res.user)
-        navigate('/', { replace: true })
+        navigate('/dashboard', { replace: true })
       })
       .catch(() => setError(true))
   }, [token, completeLogin, navigate])
