@@ -22,6 +22,7 @@ import { AccountEdit } from './pages/AccountEdit'
 import { Cart } from './pages/Cart'
 import { Checkout } from './pages/Checkout'
 import { Contact } from './pages/Contact'
+import { Dashboard } from './pages/Dashboard'
 import { ForgotPassword } from './pages/ForgotPassword'
 import { Franchise } from './pages/Franchise'
 import { GoogleAuthComplete } from './pages/GoogleAuthComplete'
@@ -59,6 +60,14 @@ function App() {
         <Route path="forgot-password" element={<ForgotPassword />} />
         <Route path="reset-password" element={<ResetPassword />} />
 
+        <Route
+          path="dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="cart"
           element={

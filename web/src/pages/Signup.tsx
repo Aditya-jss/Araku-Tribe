@@ -53,7 +53,7 @@ export function Signup() {
   async function onVerify(otp: string) {
     const res = await authApi.verifyOtp(otp)
     completeLogin(res.token, res.user)
-    navigate('/', { replace: true })
+    navigate('/dashboard', { replace: true })
   }
 
   return (
