@@ -46,7 +46,15 @@ export function ChatWidget() {
             ))}
             {sending && (
               <div className="flex justify-start">
-                <div className="rounded-lg bg-gray-100 px-3 py-2 text-sm text-brand-muted">…</div>
+                <div className="flex gap-1 rounded-lg bg-gray-100 px-3 py-3">
+                  {[0, 1, 2].map((i) => (
+                    <span
+                      key={i}
+                      className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400"
+                      style={{ animationDelay: `${i * 150}ms` }}
+                    />
+                  ))}
+                </div>
               </div>
             )}
             {error && (
