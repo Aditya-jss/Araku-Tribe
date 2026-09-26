@@ -35,6 +35,15 @@ services:
       # compose file (never commit a real key). Left unset, the chat widget
       # shows a clear "not configured" error instead of failing silently.
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # "Sign in with Google" — same .env-at-repo-root pattern as above.
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-http://localhost:8000/api/auth/google/callback}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL:-http://localhost:5173}
+      # Transactional email (Resend) — same pattern.
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-Araku Tribe <onboarding@resend.dev>}
+      CONTACT_NOTIFICATION_EMAIL: ${CONTACT_NOTIFICATION_EMAIL:-}
     ports:
       - "8000:8000"
     volumes:
