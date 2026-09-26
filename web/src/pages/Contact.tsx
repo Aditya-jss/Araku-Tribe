@@ -45,13 +45,16 @@ export function Contact() {
   return (
     <div>
       <section
-        className="px-6 py-20 text-center text-white"
-        style={{ backgroundColor: 'var(--color-brand-brown)' }}
+        className="relative flex min-h-[16rem] items-center justify-center bg-cover bg-center px-6 py-20 text-center text-white"
+        style={{ backgroundImage: "url('/img/marketing/coffee-pour.jpg')" }}
       >
-        <h1 className="mb-3 text-4xl font-bold">Contact Us</h1>
-        <p className="mx-auto max-w-xl opacity-90">
-          We'd love to hear from you — reach out with questions, feedback, or franchise inquiries.
-        </p>
+        <div className="absolute inset-0" style={{ backgroundColor: 'rgba(63, 39, 30, 0.75)' }} />
+        <div className="relative">
+          <h1 className="mb-3 text-4xl font-bold">Contact Us</h1>
+          <p className="mx-auto max-w-xl opacity-90">
+            We'd love to hear from you — reach out with questions, feedback, or franchise inquiries.
+          </p>
+        </div>
       </section>
 
       <section className="mx-auto max-w-6xl px-6 py-16">
